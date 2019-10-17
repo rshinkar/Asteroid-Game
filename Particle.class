@@ -1,0 +1,48 @@
+import processing.core.PApplet;
+
+public class Particle {
+
+	private float diameter;
+	private float xPos;
+	private float yPos;
+	private float xDir;
+	private float yDir;
+	private float speed;
+	private float transparency;
+	
+	
+	
+	public Particle(float diameter, float xPos, float yPos, float xDir, float yDir, float speed, float transparency) {
+		this.diameter = diameter;
+		this.xPos = xPos;
+		this.yPos = yPos;
+		this.xDir = xDir;
+		this.yDir = yDir;
+		this.speed = speed;
+		this.transparency = transparency;
+	}
+	
+	public void display(PApplet mainProc) {
+		mainProc.stroke(0);
+		mainProc.fill((float) (Math.random()*255),(float) (Math.random()*255),(float) (Math.random()*255),transparency);
+		mainProc.ellipse(xPos, yPos, diameter, diameter);
+	}
+	
+	public void update() {
+		transparency = transparency-2f;
+		xPos = xPos + speed*xDir;
+		yPos = yPos + speed*yDir;
+	}
+	public boolean transparent() {
+		if(transparency<=0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	
+	
+	
+}
