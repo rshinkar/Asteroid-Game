@@ -1,0 +1,162 @@
+import java.util.ArrayList;
+
+import processing.core.PApplet;
+
+public class Asteroid {
+	
+	
+	private float width;
+	private float height;
+	private float xPos;
+	private float yPos;
+	private float xDir;
+	private float yDir;
+	private float speed;
+	private float screenWidth;
+	private float screenHeight;
+	private float elpXPos;
+	private float elpYPos;
+
+	float red;
+	float green;
+	float blue;
+	private float stroke;
+	
+	public Asteroid(float width, float height, float xPos, float yPos, float xDir, float yDir, float speed,
+					float screenWidth, float screenHeight) {
+		this.width = width;
+		this.height = height;
+		this.xPos = xPos;
+		this.yPos = yPos;
+		this.xDir = xDir;
+		this.yDir = yDir;
+		this.speed = speed;
+		this.screenWidth = screenWidth;
+		this.screenHeight = screenHeight;
+		this.stroke=255;
+	}
+	
+	public void update() {
+		xPos = xPos + xDir*speed;
+		yPos = yPos + yDir*speed;
+		
+		if(xPos<=0){
+	    	xPos=screenWidth-1;
+	    }
+		if(xPos>=screenWidth){
+	    	xPos=0;
+	    }
+	    
+		if(yPos<=0){
+	    	yPos=screenHeight-1;
+	    }
+	    if (yPos>=screenHeight) {
+	    	yPos=0;
+	    }
+	}
+	
+	public boolean shipCollision(float triXPos, float triYPos, PApplet mainProc) {
+		float distance;distance = PApplet.dist(triXPos, triYPos, xPos, yPos);
+		display(mainProc);
+		if (distance>40||distance<0){
+			return false;
+		}
+		else {
+			return true;
+		} 
+	}
+	
+	public void display(PApplet mainProc) {
+		
+		mainProc.fill(red, green, blue);
+		
+		mainProc.stroke(stroke);
+		mainProc.ellipse(xPos, yPos, width, height);
+		
+	}
+	public float score() {
+		return 1;
+	}
+	
+	
+	
+	public void colorChange(int numHits) {
+		if(numHits>=0&&numHits<5||numHits==35) { 
+			red = numHits*50;
+		}
+		if(numHits>=5&&numHits<10) {
+			red=250;
+			numHits=numHits%5;
+		
+			green = numHits*50;
+		}
+		if(numHits>=10&&numHits<15) {
+			green=250;
+			numHits=numHits%5;
+			red=250;
+			red=red-numHits*50;
+		}
+		if(numHits>=15&&numHits<20) {
+			red=0;
+			green=250;
+			numHits=numHits%5;
+			blue=numHits*50;
+		}
+		if(numHits>=20&&numHits<25) {
+			red=0;
+			blue=250;
+			numHits=numHits%5;
+			green = 250;
+			green = green-numHits*50;
+		}
+		if(numHits>=25&&numHits<30) {
+			blue = 250;
+			numHits=numHits%5;
+			red=numHits*50;
+		}
+		if(numHits>=30&&numHits<35) {
+			red=250;
+			numHits=numHits%5;
+			blue=250;
+			blue=blue-numHits*50;
+		}
+		if(numHits==999) {
+			red=0;
+			green=0;
+			blue=0;
+			this.stroke=0;
+		}
+	}
+	
+	public float getRed() {
+		return red;
+	}
+	public float getGreen() {
+		return green;
+	}
+	public float getBlue() {
+		return blue;
+	}
+	
+	public boolean distance(){
+		float distance = PApplet.dist(xPos, yPos, elpXPos, elpYPos);
+		if (distance <= 40){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	public float getAstXPos(){
+		return xPos;
+	}
+	
+	public float getAstYPos(){
+		return yPos;
+	}
+
+	public void setSpeed(float speed) {
+		this.speed = speed;
+	}
+}
