@@ -1,0 +1,240 @@
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import processing.core.PApplet;
+import processing.core.PImage;
+
+public class AsteroidsGameMain extends PApplet{
+	
+	float xPos;
+	float yPos;
+	float angle = 0f;
+	float speed = 20f;
+	
+	float triWidth = 40f;
+	float triHeight = 60f;
+	
+	float xDir = 1f;
+	float yDir = 1f;
+	
+	float elpXPos;
+	float elpYPos;
+	float elpAngle;
+	
+	boolean gameOn = true;
+	boolean manyTorpedos=false;
+	boolean shown;
+	boolean collisionColor;
+	
+	boolean reset = false;
+	boolean askName=true;
+	boolean fileCheck=false;
+	
+	int numHit;
+	int count;
+	Integer finalScore;	
+	
+	ArrayList<Torpedo> torpList = new ArrayList<Torpedo>();
+	ArrayList<Asteroid>astList =new ArrayList<Asteroid>(6);
+	ArrayList<ParticleSystem> partSysList;
+	
+	Torpedo torpedo;
+	TriShip ship;	
+	
+	String name;
+	
+	ReadWriteAsteroidFile fileObj;
+	String topTen;
+	
+	
+	public void setup(){
+	if(askName==true) {
+		ReadWriteAsteroidFile topTen = new ReadWriteAsteroidFile(0, "n/a");
+			topTen.topScore();
+			name=JOptionPane.showInputDialog("Please enter your name");
+		askName=false;
+	}
+		
+		for (int i=0; i<7;i++) {
+			astList.add(new Asteroid(40f,40f, random(0,1000), random(0,200), 
+									random(-5,5), random(-5,5), 1f, 1000f, 800f));
+		}
+		xPos = width/2;
+		yPos = height/2-triHeight/2;
+		elpXPos = xPos;
+		elpYPos = yPos;
+		elpAngle=angle+90;
+		partSysList = new ArrayList<ParticleSystem>();
+		reset= false;
+		count=0;
+		numHit=0;
+	}
+	
+	public void settings(){
+		size(1000,800);
+	}
+	
+	public void draw(){
+		
+		background(0);
+		textSize(16);
+		fill(255);
+		text("Your score is "+count, 40, 50);
+		textSize(12);
+		text("A: rotate left\nD: rotate right\nArrow keys to move",40, 70);
+		textSize(18);
+		text("KEEP SPACE PIRATE MARK WATNEY SAFE FROM THE ASTEROIDS",250,50);
+	
+		if(gameOn==true) {
+			
+		for(int i=partSysList.size()-1; i>=0;i--) {
+			ParticleSystem particle = partSysList.get(i);
+			particle.display(this);
+			particle.update();
+		}
+	
+		torpedo = new Torpedo (elpXPos, elpYPos, xDir, yDir, speed, 20f);
+		for (int i=0;i<torpList.size()-1;i++) {
+			torpList.get(torpList.size()-1).colorChange(numHit);
+		}
+		
+		ship = new TriShip(xPos, yPos, triWidth, triHeight, radians(angle), speed);
+		shown=true;
+		if (shown == true) {
+			ship.colorChange(numHit);
+			ship.display(this);
+		}
+		
+		if(numHit%35==0) {
+			numHit=0;
+		}
+		
+		for (int j=astList.size()-1; j>=0 ; j--) {
+			for(int i=0; i<torpList.size(); i++) {
+				if(torpList.get(i).collision(astList.get(j).getAstXPos(), astList.get(j).getAstYPos())==true){
+					numHit++;
+					partSysList.add(new ParticleSystem(astList.get(j).getAstXPos(), astList.get(j).getAstYPos(), 200));
+					count = (int) (count + astList.get(j).score());
+					astList.remove(j);
+					astList.add(new Asteroid(40f,40f, random(0,1000), random(0,800), random(-5,5), 
+									random(-5,5), 1f, 1000f, 800f));
+					astList.get(astList.size()-1).colorChange(numHit);
+				}
+			}
+			astList.get(j).display(this);
+			astList.get(j).update();
+		}
+	
+	
+		for(int i=0; i<torpList.size(); i++) {	
+			torpedo.update();
+			torpList.get(i).shoot((float) Math.cos(radians(elpAngle)),(float) Math.sin(radians(elpAngle)));	
+			torpList.get(i).display(this);
+			if(torpList.get(i).checkBounds()==false){
+				torpList.remove(i);
+			}
+		}
+	
+		for (int j=astList.size()-1; j>=0; j--){
+			if(astList.get(j).shipCollision(xPos, yPos, this)==true) {	
+				numHit=999;
+				astList.remove(j);
+				ParticleSystem part;
+				partSysList.add(part = new ParticleSystem(xPos, yPos, 100));
+				for(int i=astList.size()-1; i>=0 ; i--) {
+					partSysList.add(part = new ParticleSystem(astList.get(i).getAstXPos(), astList.get(i).getAstYPos(), 
+							200));
+					astList.get(i).setSpeed(0);
+					astList.get(i).colorChange(numHit);
+					reset=true;
+					fileCheck=true;
+				}
+			}
+		}
+	
+		if (reset==true) {
+				stroke(0);
+				fill(255);
+				rect(900,50,65,35);
+				fill(0);
+				textSize(14);
+				text("Restart", 909, 71);
+				askName=true;
+		
+		}
+	}
+		if (fileCheck==true) {
+				finalScore = count;
+				fileObj = new ReadWriteAsteroidFile(finalScore, name);
+				fileObj.writeFile();
+				fileCheck=false;
+		}
+	
+	}
+	
+	public void keyReleased() {
+		if (key==' ') {
+			manyTorpedos = false;
+		}
+	}
+	
+	public void keyPressed() {
+		if(key=='a') {
+			angle = angle-speed;
+			elpAngle = elpAngle - speed;
+			ship.update(angle);
+		}
+		if(key == 'd') {
+			angle = angle+speed;
+			elpAngle = elpAngle + speed;
+			ship.update(angle);
+		}
+		
+		if (keyPressed) {
+			if(key == ' ') {
+				manyTorpedos = true;
+				torpList.add(new Torpedo(elpXPos, elpYPos, xDir, yDir, speed, 20f));
+			}
+		}
+		
+		if (key == CODED) {
+			if(keyCode == UP) {
+				xPos = xPos + speed*(float) Math.cos(radians(-angle-90));
+				yPos = yPos + speed*(float) Math.sin(radians(-angle-90));
+				elpXPos = xPos;
+				elpYPos = yPos;
+			}
+			if(keyCode == DOWN) {
+				xPos = xPos - speed*(float) Math.cos(radians(-angle-90));
+				yPos = yPos - speed*(float) Math.sin(radians(-angle-90));
+				elpXPos = xPos;
+				elpYPos = yPos;
+			}
+			if(keyCode == LEFT) {
+				xPos = xPos + speed*(float) Math.cos(radians(-angle-180));
+				yPos = yPos + speed*(float) Math.sin(radians(-angle-180));
+				elpXPos = xPos;
+				elpYPos = yPos;
+			}
+			if(keyCode == RIGHT) {
+				xPos = xPos - speed*(float) Math.cos(radians(-angle-180));
+				yPos = yPos - speed*(float) Math.sin(radians(-angle-180));
+				elpXPos = xPos;
+				elpYPos = yPos;
+			}
+		}
+	}
+	
+	public void mouseClicked() {
+		if(mouseY<=85f&&mouseY>=45f&&mouseX<=940f&&mouseX>=885f&&reset==true) {
+			reset=false;
+			shown=true;
+			gameOn=true;
+			setup();
+		}
+	}
+	
+	public static void main(String[] args) {
+		PApplet.main("AsteroidsGameMain");
+	
+	}
+}
