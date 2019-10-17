@@ -1,0 +1,115 @@
+import processing.core.PApplet;
+import processing.core.PImage;
+
+public class TriShip {
+
+	private float xPos;
+	private float yPos;
+	private float triWidth;
+	private float triHeight;
+	private float angle;
+	private float speed;
+	
+	float stroke=255;
+	float red;
+	float green;
+	float blue;
+	
+	public TriShip(float xPos, float yPos, float triWidth, float triHeight, float angle,
+					float speed) {
+		this.xPos = xPos; 
+		this.yPos = yPos; 
+		this.triWidth = triWidth; 
+		this.triHeight = triHeight; 
+		this.angle = angle;
+		this.speed = speed;
+		
+	}
+	
+	
+	public void display(PApplet mainProc) {
+		mainProc.pushMatrix();
+			mainProc.stroke(stroke);
+			mainProc.fill(red, green, blue);
+			mainProc.translate(xPos, yPos);
+			mainProc.rotate(-angle);	
+			mainProc.triangle(-triWidth/2, triHeight, 0, 0, triWidth/2, triHeight);
+			
+			PImage img;
+			img=mainProc.loadImage("MarkWatney.jpg");
+			mainProc.image(img, -15, -15);
+			mainProc.stroke(stroke);
+			mainProc.fill(red, green, blue,100);
+			mainProc.ellipse(0, 0, 45, 45);
+			mainProc.translate(xPos, yPos);
+		mainProc.popMatrix();	
+		
+	}
+	
+	
+	
+	public void colorChange(int numHits) {//add text about score per color
+		if(numHits>=0&&numHits<5||numHits==35) { 
+			//numHits+=1;
+			red = numHits*50;
+			stroke=255;
+		}
+		
+		if(numHits>=5&&numHits<10) {
+			red=250;
+			numHits=numHits%5;
+			green = numHits*50;
+		}
+		if(numHits>=10&&numHits<15) {
+			green=250;
+			numHits=numHits%5;
+			red=250;
+			red=red-numHits*50;
+		}
+		if(numHits>=15&&numHits<20) {
+			red=0;
+			green=250;
+			numHits=numHits%5;
+			blue=numHits*50;
+		}
+		if(numHits>=20&&numHits<25) {
+			red=0;
+			blue=250;
+			numHits=numHits%5;
+			green = 250;
+			green = green-numHits*50;
+		}
+		if(numHits>=25&&numHits<30) {
+			blue = 250;
+			numHits=numHits%5;
+			red=numHits*50;
+		}
+		if(numHits>=30&&numHits<35) {
+			red=250;
+			numHits=numHits%5;
+			blue=250;
+			blue=blue-numHits*50;
+		}
+		if(numHits==999) {
+			red=0;
+			green=0;
+			blue=0;
+			stroke=0;
+		}
+	}
+	
+	
+	public void destroyed(PApplet mainProc) {
+		stroke = 0;
+		mainProc.stroke(stroke);
+	}
+	
+	public void update(float angle) {
+		this.angle = angle;
+		
+	}
+	
+	
+	
+	}
+
