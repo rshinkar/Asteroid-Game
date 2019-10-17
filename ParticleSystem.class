@@ -1,0 +1,49 @@
+import java.util.ArrayList;
+
+import processing.core.PApplet;
+
+public class ParticleSystem {
+
+	
+	ArrayList<Particle>partList = new ArrayList<Particle>(2);
+	//Particle part;
+	
+	private float xPos;
+	private float yPos;
+	private float numParticles;
+	
+	public ParticleSystem(float xPos, float yPos, float numParticles) {
+		this.xPos = xPos;
+		this.yPos = yPos;
+		this.numParticles = numParticles;
+		
+
+		for (int i=0; i<numParticles; i++) {
+			addParticle();
+		}
+	}
+	
+	public void display(PApplet mainProc) {
+		for(int i=0; i<partList.size();i++) {
+			partList.get(i).display(mainProc);
+		}
+	}
+	
+	public void update() { 
+		for(int i=partList.size()-1; i>=0; i--) {
+			Particle tempPart = partList.get(i);
+			tempPart.update();
+			if(partList.get(i).transparent() == true) {
+				partList.remove(i);
+			}
+		}
+	}
+	
+	public boolean checkEnd() {
+		return(partList.isEmpty());
+	}
+	public void addParticle() {
+		partList.add(new Particle(8f, xPos, yPos, (float)Math.random()*10-5, 
+				(float)Math.random()*10-5, 1f, 255f));
+	}
+}
